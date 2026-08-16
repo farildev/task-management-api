@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "../services/auth.services";
+import { UserModel } from "../models/user.model";
 
 export const AuthController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
@@ -31,5 +32,23 @@ export const AuthController = {
       success: true,
       message: "Logged out successfully"
     })
+  },
+  me: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await UserModel.findById(req.user!.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+    const { password: _, ...userWithoutPassword } = user;
+    res.json({
+      success: true,
+      data: userWithoutPassword,
+    });
+  } catch (err) {
+    next(err);
   }
+},
 }
