@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { ProjectService } from '../services/projects.services';
+import { ProjectService } from '../services/project.services';
+import { getPagination } from '../utils/pagination';
 export const ProjectController = {
   getAll: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const projects = await ProjectService.getAll(req.user!.id);
-      res.json({ success: true, data: projects });
-    } catch (err) {
-      next(err);
-    }
-  },
+  try {
+    const { page, limit, offset } = getPagination(req.query);
+    const result = await ProjectService.getAll(req.user!.id, page, limit, offset);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+},
 
   getById: async (req: Request, res: Response, next: NextFunction) => {
   try {

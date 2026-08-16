@@ -1,9 +1,18 @@
 import { ProjectModel } from "../models/project.model";
 import { Project } from "../types";
 
-const getAll = async (userId : string) : Promise<Project[]> => {
-  return await ProjectModel.findAll(userId);
-}
+const getAll = async (userId: string, page: number, limit: number, offset: number) => {
+  const { rows, total } = await ProjectModel.findAll(userId, limit, offset);
+  return {
+    data: rows,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
 
 const getById = async (id: string, userId: string) : Promise<Project> => {
   const project = await ProjectModel.findById(id);
@@ -40,7 +49,7 @@ const remove = async (id: string, userId: string) : Promise<void> => {
     throw new Error('Project not found.')
   }
   if (project.owner_id !== userId){
-    throw new Error("Unauthorized access");
+    throw new Error("Unauthorized access"                                                                                                                                                                           );
   }
   await ProjectModel.delete(id);
 }
